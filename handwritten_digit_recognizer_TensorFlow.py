@@ -1,13 +1,15 @@
 
-<h1 align="center">TensorFlow Neural Network - Digit Detection</h1>
+# coding: utf-8
 
-<img src="image/notmnist.png">
-The data we are are using, <a href="http://yaroslavvb.blogspot.com/2011/09/notmnist-dataset.html">notMNIST</a>, consists of images of a letter from A to J in different fonts.
+# <h1 align="center">TensorFlow Neural Network - Digit Detection</h1>
 
-The above images are a few examples of the data.
+# <img src="image/notmnist.png">
+# The data we are are using, <a href="http://yaroslavvb.blogspot.com/2011/09/notmnist-dataset.html">notMNIST</a>, consists of images of a letter from A to J in different fonts.
+# 
+# The above images are a few examples of the data.
 
+# In[1]:
 
-```python
 import hashlib
 import os
 import pickle
@@ -22,15 +24,12 @@ from tqdm import tqdm
 from zipfile import ZipFile
 
 print('All modules imported.')
-```
-
-    All modules imported.
 
 
-The notMNIST dataset is too large.  It contains 500,000 images for just training.  We have used a subset of this data, 15,000 images for each label (A-J).
+# The notMNIST dataset is too large.  It contains 500,000 images for just training.  We have used a subset of this data, 15,000 images for each label (A-J).
 
+# In[2]:
 
-```python
 def download(url, file):
     """
     Download file from <url>
@@ -47,24 +46,15 @@ download('https://s3.amazonaws.com/udacity-sdc/notMNIST_train.zip', 'notMNIST_tr
 download('https://s3.amazonaws.com/udacity-sdc/notMNIST_test.zip', 'notMNIST_test.zip')
 
 # Make sure the files aren't corrupted
-assert hashlib.md5(open('notMNIST_train.zip', 'rb').read()).hexdigest() == 'c8673b3f28f489e9cdf3a3d74e2ac8fa',\
-        'notMNIST_train.zip file is corrupted.  Remove the file and try again.'
-assert hashlib.md5(open('notMNIST_test.zip', 'rb').read()).hexdigest() == '5d3c7e653e63471c88df796156a9dfa9',\
-        'notMNIST_test.zip file is corrupted.  Remove the file and try again.'
+assert hashlib.md5(open('notMNIST_train.zip', 'rb').read()).hexdigest() == 'c8673b3f28f489e9cdf3a3d74e2ac8fa',        'notMNIST_train.zip file is corrupted.  Remove the file and try again.'
+assert hashlib.md5(open('notMNIST_test.zip', 'rb').read()).hexdigest() == '5d3c7e653e63471c88df796156a9dfa9',        'notMNIST_test.zip file is corrupted.  Remove the file and try again.'
 
 # Wait until you see that all files have been downloaded.
 print('All files downloaded.')
-```
-
-    Downloading notMNIST_train.zip...
-    Download Finished
-    Downloading notMNIST_test.zip...
-    Download Finished
-    All files downloaded.
 
 
+# In[3]:
 
-```python
 def uncompress_features_labels(file):
     """
     Uncompress features and labels from a zip file
@@ -109,28 +99,21 @@ is_labels_encod = False
 
 # Wait until you see that all features and labels have been uncompressed.
 print('All features and labels uncompressed.')
-```
-
-    100%|██████████| 210001/210001 [00:43<00:00, 4869.62files/s]
-    100%|██████████| 10001/10001 [00:02<00:00, 4909.39files/s]
 
 
-    All features and labels uncompressed.
+# <img src="image/Mean_Variance_Image.png" style="height: 75%;width: 75%; position: relative; right: 5%">
+# 
+# Implemented Min-Max scaling in the `normalize_grayscale()` function to a range of `a=0.1` and `b=0.9`. After scaling, the values of the pixels in the input data should range from 0.1 to 0.9.
+# 
+# Since the raw notMNIST image data is in [grayscale](https://en.wikipedia.org/wiki/Grayscale), the current values range from a min of 0 to a max of 255.
+# 
+# Min-Max Scaling:
+# $
+# X'=a+{\frac {\left(X-X_{\min }\right)\left(b-a\right)}{X_{\max }-X_{\min }}}
+# $
 
+# In[29]:
 
-<img src="image/Mean_Variance_Image.png" style="height: 75%;width: 75%; position: relative; right: 5%">
-
-Implemented Min-Max scaling in the `normalize_grayscale()` function to a range of `a=0.1` and `b=0.9`. After scaling, the values of the pixels in the input data should range from 0.1 to 0.9.
-
-Since the raw notMNIST image data is in [grayscale](https://en.wikipedia.org/wiki/Grayscale), the current values range from a min of 0 to a max of 255.
-
-Min-Max Scaling:
-$
-X'=a+{\frac {\left(X-X_{\min }\right)\left(b-a\right)}{X_{\max }-X_{\min }}}
-$
-
-
-```python
 def normalize_grayscale(image_data):
     """
     :param image_data: The image data to be normalized
@@ -141,10 +124,10 @@ def normalize_grayscale(image_data):
     grayscale_min = 0
     grayscale_max = 255
     return a + ( ( (image_data - grayscale_min)*(b - a) )/( grayscale_max - grayscale_min ))
-```
 
 
-```python
+# In[14]:
+
 if not is_labels_encod:
     # Turn labels into numbers and apply One-Hot Encoding
     encoder = LabelBinarizer()
@@ -158,13 +141,10 @@ if not is_labels_encod:
     is_labels_encod = True
 
 print('Labels One-Hot Encoded')
-```
-
-    Labels One-Hot Encoded
 
 
+# In[15]:
 
-```python
 # Get randomized datasets for training and validation
 train_features, valid_features, train_labels, valid_labels = train_test_split(
     train_features,
@@ -173,13 +153,10 @@ train_features, valid_features, train_labels, valid_labels = train_test_split(
     random_state=832289)
 
 print('Training features and labels randomized and split.')
-```
-
-    Training features and labels randomized and split.
 
 
+# In[16]:
 
-```python
 # Save the data for easy access
 pickle_file = 'notMNIST.pickle'
 if not os.path.isfile(pickle_file):
@@ -201,18 +178,14 @@ if not os.path.isfile(pickle_file):
         raise
 
 print('Data cached in pickle file.')
-```
-
-    Saving data to pickle file...
-    Data cached in pickle file.
 
 
-# Checkpoint
-All your progress is now saved to the pickle file.
+# # Checkpoint
+# All your progress is now saved to the pickle file.
 
+# In[17]:
 
-```python
-%matplotlib inline
+get_ipython().magic('matplotlib inline')
 
 # Load the modules
 import pickle
@@ -236,36 +209,27 @@ with open(pickle_file, 'rb') as f:
   del pickle_data  # Free up memory
 
 print('Data and modules loaded.')
-```
-
-    /media/kartik_nighania/data/anaconda3/envs/dlnd-tf-lab/lib/python3.5/site-packages/matplotlib/font_manager.py:273: UserWarning: Matplotlib is building the font cache using fc-list. This may take a moment.
-      warnings.warn('Matplotlib is building the font cache using fc-list. This may take a moment.')
-    /media/kartik_nighania/data/anaconda3/envs/dlnd-tf-lab/lib/python3.5/site-packages/matplotlib/font_manager.py:273: UserWarning: Matplotlib is building the font cache using fc-list. This may take a moment.
-      warnings.warn('Matplotlib is building the font cache using fc-list. This may take a moment.')
 
 
-    Data and modules loaded.
+# 
+# ## Problem 2
+# 
+# Now it's time to build a simple neural network using TensorFlow. Network will be just an input layer and an output layer.
+# 
+# <img src="image/network_diagram.png" style="height: 40%;width: 40%; position: relative; right: 10%">
+# 
+# For the input here the images have been flattened into a vector of $28 \times 28 = 784$ features. Then, we're trying to predict the image digit so there are 10 output units, one for each label.
+# 
+# For the neural network to train on your data, we have 3 parameters: <a href="https://www.tensorflow.org/resources/dims_types.html#data-types">float32</a> tensors:
+#  - `features`
+#   - Placeholder tensor for feature data (`train_features`/`valid_features`/`test_features`)
+#  - `labels`
+#   - Placeholder tensor for label data (`train_labels`/`valid_labels`/`test_labels`)
+#  - `weights`
+#   - Variable Tensor with random numbers from a truncated normal distribution.
 
+# In[35]:
 
-
-## Problem 2
-
-Now it's time to build a simple neural network using TensorFlow. Network will be just an input layer and an output layer.
-
-<img src="image/network_diagram.png" style="height: 40%;width: 40%; position: relative; right: 10%">
-
-For the input here the images have been flattened into a vector of $28 \times 28 = 784$ features. Then, we're trying to predict the image digit so there are 10 output units, one for each label.
-
-For the neural network to train on your data, we have 3 parameters: <a href="https://www.tensorflow.org/resources/dims_types.html#data-types">float32</a> tensors:
- - `features`
-  - Placeholder tensor for feature data (`train_features`/`valid_features`/`test_features`)
- - `labels`
-  - Placeholder tensor for label data (`train_labels`/`valid_labels`/`test_labels`)
- - `weights`
-  - Variable Tensor with random numbers from a truncated normal distribution.
-
-
-```python
 # All the pixels in the image (28 * 28 = 784)
 features_count = 784
 # All the labels
@@ -310,29 +274,23 @@ with tf.Session() as session:
 assert not np.count_nonzero(biases_data), 'biases must be zeros'
 
 print('Tests Passed!')
-```
-
-    Tests Passed!
 
 
+# In[36]:
 
-```python
 # Determine if the predictions are correct
 is_correct_prediction = tf.equal(tf.argmax(prediction, 1), tf.argmax(labels, 1))
 # Calculate the accuracy of the predictions
 accuracy = tf.reduce_mean(tf.cast(is_correct_prediction, tf.float32))
 
 print('Accuracy function created.')
-```
-
-    Accuracy function created.
 
 
-<img src="image/Learn_Rate_Tune_Image.png" style="height: 70%;width: 70%"> </img>
-## Hyper-Parameter optimization
+# <img src="image/Learn_Rate_Tune_Image.png" style="height: 70%;width: 70%"> </img>
+# ## Hyper-Parameter optimization
 
+# In[38]:
 
-```python
 # Change if you have memory restrictions
 batch_size = 128
 epochs = 1
@@ -403,22 +361,12 @@ plt.tight_layout()
 plt.show()
 
 print('Validation accuracy at {}'.format(validation_accuracy))
-```
-
-    Epoch  1/1: 100%|██████████| 1114/1114 [00:08<00:00, 134.90batches/s]
 
 
+# ## Testing
 
-![png](output_17_1.png)
+# In[39]:
 
-
-    Validation accuracy at 0.7188000082969666
-
-
-## Testing
-
-
-```python
 # The accuracy measured against the test set
 test_accuracy = 0.0
 
@@ -446,10 +394,4 @@ with tf.Session() as session:
         test_accuracy = session.run(accuracy, feed_dict=test_feed_dict)
 
 print('Test Accuracy is {}'.format(test_accuracy))
-```
-
-    Epoch  1/1: 100%|██████████| 1114/1114 [00:02<00:00, 527.21batches/s]
-
-
-    Test Accuracy is 0.8029999732971191
 
