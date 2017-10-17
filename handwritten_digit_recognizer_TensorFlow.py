@@ -1,15 +1,3 @@
-
-# coding: utf-8
-
-# <h1 align="center">TensorFlow Neural Network - Digit Detection</h1>
-
-# <img src="image/notmnist.png">
-# The data we are are using, <a href="http://yaroslavvb.blogspot.com/2011/09/notmnist-dataset.html">notMNIST</a>, consists of images of a letter from A to J in different fonts.
-# 
-# The above images are a few examples of the data.
-
-# In[1]:
-
 import hashlib
 import os
 import pickle
@@ -394,4 +382,3 @@ with tf.Session() as session:
         test_accuracy = session.run(accuracy, feed_dict=test_feed_dict)
 
 print('Test Accuracy is {}'.format(test_accuracy))
-
